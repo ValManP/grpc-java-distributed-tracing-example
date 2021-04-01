@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package api;
+
+service Circle {
+    rpc Area(AreaRequest) returns (AreaResponse) {}
+}
+
+service Math {
+    rpc Sqr(SqrRequest) returns (SqrResponse) {}
+}
+
+message AreaRequest {
+  double radius = 1;
+}
+
+message AreaResponse {
+  double area = 1;
+}
+
+message SqrRequest {
+  double value = 1;
+}
+
+message SqrResponse {
+  double result = 1;
+}
