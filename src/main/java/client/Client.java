@@ -5,16 +5,15 @@ import api.AreaResponse;
 import api.CircleGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.census.InternalCensusTracingAccessor;
 import io.opencensus.common.Scope;
-import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.exporter.trace.jaeger.JaegerExporterConfiguration;
-import io.opencensus.trace.Span;
+import io.opencensus.exporter.trace.jaeger.JaegerTraceExporter;
 import io.opencensus.trace.SpanBuilder;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.samplers.Samplers;
-import io.opencensus.exporter.trace.jaeger.JaegerTraceExporter;
 import io.opentracing.contrib.grpc.TracingClientInterceptor;
 
 import java.io.BufferedReader;
@@ -29,6 +28,7 @@ public class Client {
     public Client(String serverHost, int serverPort) {
         this.channel = ManagedChannelBuilder.forAddress(serverHost, serverPort)
                 .usePlaintext()
+                .intercept(TracingClientInterceptor.newBuilder().build())
                 .build();
 
 
@@ -47,8 +47,6 @@ public class Client {
     }
 
     public void initExporter() {
-        RpcViews.registerAllViews();
-
         JaegerTraceExporter.createAndRegister(JaegerExporterConfiguration.builder()
                 .setThriftEndpoint("http://localhost:14268/api/traces")
                 .setServiceName("client-service").build());

@@ -14,6 +14,7 @@ import io.opencensus.exporter.trace.jaeger.JaegerTraceExporter;
 import io.opencensus.trace.*;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.samplers.Samplers;
+import io.opentracing.contrib.grpc.TracingServerInterceptor;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,9 +33,7 @@ public class Math {
     static class MathImpl extends MathGrpc.MathImplBase {
         @Override
         public void sqr(SqrRequest request, StreamObserver<SqrResponse> responseObserver) {
-            Span parent = tracer.getCurrentSpan();
-            SpanBuilder spanBuilder =
-                    tracer.spanBuilder("Math.Sqr").setRecordEvents(true);
+            SpanBuilder spanBuilder = tracer.spanBuilder("Math.Sqr").setRecordEvents(true);
             try (Scope scope = spanBuilder.startScopedSpan()) {
                 Span span = tracer.getCurrentSpan();
 
@@ -63,6 +62,7 @@ public class Math {
     private void start() throws IOException {
         this.server = ServerBuilder.forPort(this.serverPort)
                 .addService(new MathImpl())
+                .intercept(TracingServerInterceptor.newBuilder().build())
                 .build()
                 .start();
 
@@ -77,8 +77,6 @@ public class Math {
     }
 
     public void initExporter() {
-        RpcViews.registerAllViews();
-
         JaegerTraceExporter.createAndRegister(JaegerExporterConfiguration.builder()
                 .setThriftEndpoint("http://localhost:14268/api/traces")
                 .setServiceName("math-service").build());

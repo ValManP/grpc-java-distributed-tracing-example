@@ -7,12 +7,13 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.common.Scope;
-import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.exporter.trace.jaeger.JaegerExporterConfiguration;
 import io.opencensus.exporter.trace.jaeger.JaegerTraceExporter;
 import io.opencensus.trace.*;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.samplers.Samplers;
+import io.opentracing.contrib.grpc.TracingClientInterceptor;
+import io.opentracing.contrib.grpc.TracingServerInterceptor;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,9 +32,8 @@ public class Circle {
     static class CircleImpl extends CircleGrpc.CircleImplBase {
         @Override
         public void area(AreaRequest request, StreamObserver<AreaResponse> responseObserver) {
-            Span parent = tracer.getCurrentSpan();
             SpanBuilder spanBuilder =
-                    tracer.spanBuilderWithExplicitParent("Circle.Area", parent).setRecordEvents(true);
+                    tracer.spanBuilder("Circle.Area").setRecordEvents(true);
 
             try (Scope scope = spanBuilder.startScopedSpan()) {
                 Span span = tracer.getCurrentSpan();
@@ -55,6 +55,7 @@ public class Circle {
         public double callSqr(double radius) {
             ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50052)
                     .usePlaintext()
+                    .intercept(TracingClientInterceptor.newBuilder().build())
                     .build();
             MathGrpc.MathBlockingStub stub = MathGrpc.newBlockingStub(channel);
 
@@ -73,6 +74,7 @@ public class Circle {
     private void start() throws IOException {
         this.server = ServerBuilder.forPort(this.serverPort)
                 .addService(new CircleImpl())
+                .intercept(TracingServerInterceptor.newBuilder().build())
                 .build()
                 .start();
 
@@ -87,8 +89,6 @@ public class Circle {
     }
 
     public void initExporter() {
-        RpcViews.registerAllViews();
-
         JaegerTraceExporter.createAndRegister(JaegerExporterConfiguration.builder()
                 .setThriftEndpoint("http://localhost:14268/api/traces")
                 .setServiceName("circle-service").build());
