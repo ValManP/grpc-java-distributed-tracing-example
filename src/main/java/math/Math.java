@@ -3,12 +3,10 @@ package math;
 import api.MathGrpc;
 import api.SqrRequest;
 import api.SqrResponse;
-import com.google.protobuf.ByteString;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.common.Scope;
-import io.opencensus.contrib.grpc.metrics.RpcViews;
 import io.opencensus.exporter.trace.jaeger.JaegerExporterConfiguration;
 import io.opencensus.exporter.trace.jaeger.JaegerTraceExporter;
 import io.opencensus.trace.*;
@@ -17,8 +15,6 @@ import io.opencensus.trace.samplers.Samplers;
 import io.opentracing.contrib.grpc.TracingServerInterceptor;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Math {
     private static final Tracer tracer = Tracing.getTracer();

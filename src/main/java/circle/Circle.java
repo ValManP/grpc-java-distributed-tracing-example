@@ -16,8 +16,6 @@ import io.opentracing.contrib.grpc.TracingClientInterceptor;
 import io.opentracing.contrib.grpc.TracingServerInterceptor;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Circle {
     private static final Tracer tracer = Tracing.getTracer();

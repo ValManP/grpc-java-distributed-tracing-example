@@ -51,11 +51,6 @@
             <version>0.28.3</version>
         </dependency>
         <dependency>
-            <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-contrib-grpc-metrics</artifactId>
-            <version>0.28.3</version>
-        </dependency>
-        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-census</artifactId>
             <version>1.36.1</version>
