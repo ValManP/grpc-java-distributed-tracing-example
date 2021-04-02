@@ -36,10 +36,8 @@ public class Math {
             SpanBuilder spanBuilder = tracer.spanBuilder("Math.Sqr").setRecordEvents(true);
             try (Scope scope = spanBuilder.startScopedSpan()) {
                 Span span = tracer.getCurrentSpan();
-
-                Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-                attributes.put("value", AttributeValue.doubleAttributeValue(request.getValue()));
-                span.addAnnotation("Invoking Math.Sqr", attributes);
+                span.putAttribute("value", AttributeValue.doubleAttributeValue(request.getValue()));
+                span.putAttribute("lang", AttributeValue.stringAttributeValue("java"));
 
                 System.out.printf("calls Math.Sqr with value = %f\n", request.getValue());
                 SqrResponse resp;

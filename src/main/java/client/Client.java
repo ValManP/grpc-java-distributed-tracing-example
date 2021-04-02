@@ -5,13 +5,10 @@ import api.AreaResponse;
 import api.CircleGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.census.InternalCensusTracingAccessor;
 import io.opencensus.common.Scope;
 import io.opencensus.exporter.trace.jaeger.JaegerExporterConfiguration;
 import io.opencensus.exporter.trace.jaeger.JaegerTraceExporter;
-import io.opencensus.trace.SpanBuilder;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
+import io.opencensus.trace.*;
 import io.opencensus.trace.config.TraceConfig;
 import io.opencensus.trace.samplers.Samplers;
 import io.opentracing.contrib.grpc.TracingClientInterceptor;
@@ -39,6 +36,8 @@ public class Client {
         SpanBuilder spanBuilder =
                 tracer.spanBuilder("ClientSpan").setRecordEvents(true);
         try (Scope scope = spanBuilder.startScopedSpan()) {
+            Span span = tracer.getCurrentSpan();
+            span.putAttribute("lang", AttributeValue.stringAttributeValue("java"));
 
             AreaRequest in = AreaRequest.newBuilder().setRadius(radius).build();
             AreaResponse out = this.stub.area(in);

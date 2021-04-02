@@ -37,10 +37,8 @@ public class Circle {
 
             try (Scope scope = spanBuilder.startScopedSpan()) {
                 Span span = tracer.getCurrentSpan();
-
-                Map<String, AttributeValue> attributes = new HashMap<String, AttributeValue>();
-                attributes.put("radius", AttributeValue.doubleAttributeValue(request.getRadius()));
-                span.addAnnotation("Invoking Circle.Area", attributes);
+                span.putAttribute("radius", AttributeValue.doubleAttributeValue(request.getRadius()));
+                span.putAttribute("lang", AttributeValue.stringAttributeValue("java"));
 
                 System.out.printf("calls Circle.Area with radius = %f\n", request.getRadius());
                 double sqrRadius = callSqr(request.getRadius());
